@@ -1,0 +1,24 @@
+[project]
+name = "telegram-finbot"
+version = "0.1.0"
+description = "telegram_finbot"
+authors = [
+    {name = "Zharas Tuyanov"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.115.12,<0.116.0)",
+    "aiogram (>=3.19.0,<4.0.0)",
+    "pdfplumber (>=0.11.6,<0.12.0)",
+    "openai (>=1.70.0,<2.0.0)",
+    "sqlalchemy (>=2.0.40,<3.0.0)",
+    "asyncpg (>=0.30.0,<0.31.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "uvicorn (>=0.34.0,<0.35.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
