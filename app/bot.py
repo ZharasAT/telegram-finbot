@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 import logging
 from aiogram.client.default import DefaultBotProperties
+import pdfplumber
+from aiogram.types import FSInputFile
 
 load_dotenv()
 
@@ -16,6 +18,24 @@ bot = Bot(
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
 dp = Dispatcher(storage=MemoryStorage())
+
+@dp.message(lambda message: message.document and message.document.mime_type == 'application/pdf')
+async def handle_pdf(message: Message):
+    file = await bot.download(message.document)
+    file_path = f"temp/{message.document.file_name}"
+
+    with open(file_path, "wb") as f:
+        f.write(file.read())
+
+    with pdfplumber.open(file_path) as pdf:
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text() + "\n"
+
+    if text:
+        await message.answer(f"Вот что я нашел в PDF:\n\n{text[:3000]}")
+    else:
+        await message.answer("Не удалось извлечь текст из PDF 😔")
 
 @dp.message()
 async def echo_message(message: Message):
