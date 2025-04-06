@@ -29,4 +29,4 @@ RUN poetry config virtualenvs.create false && poetry install --only main --no-ro
 COPY . .
 
 # Запускаем бота
-CMD ["poetry", "run", "python", "-m", "app.main"]
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
