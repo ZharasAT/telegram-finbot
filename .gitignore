@@ -9,7 +9,6 @@ __pycache__/
 # Poetry virtualenvs
 *.venv/
 .venv/
-.env
 
 # PyCharm project files
 .idea/
@@ -62,3 +61,4 @@ temp/
 
 # dotenv environment files (optional)
 .env.*
+.env
