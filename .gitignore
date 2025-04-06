@@ -1,0 +1,64 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Poetry virtualenvs
+*.venv/
+.venv/
+.env
+
+# PyCharm project files
+.idea/
+
+# VS Code project files (на всякий случай)
+.vscode/
+
+# MacOS system files
+.DS_Store
+
+# Python virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pytest
+.cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Test output
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# PyInstaller
+*.manifest
+*.spec
+
+# PDF input/output
+temp/
+*.pdf
+
+# Logs and debug
+*.log
+
+# dotenv environment files (optional)
+.env.*
