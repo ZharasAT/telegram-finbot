@@ -1,32 +1,26 @@
-# Используем лёгкий Python-образ
+# Базовый образ Python
 FROM python:3.12-slim
 
-# Устанавливаем системные зависимости
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    poppler-utils \
-    tesseract-ocr \
-    tesseract-ocr-rus \
-    libglib2.0-0 \
-    libsm6 \
-    libxrender1 \
-    libxext6 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Устанавливаем poetry
+# Устанавливаем Poetry
 RUN pip install poetry
 
-# Указываем рабочую директорию
+# Создаём рабочую директорию
 WORKDIR /app
 
 # Копируем файлы зависимостей
 COPY pyproject.toml poetry.lock* ./
 
-# Устанавливаем зависимости без установки проекта
+# Установка зависимостей без создания виртуального окружения
 RUN poetry config virtualenvs.create false && poetry install --only main --no-root
 
-# Копируем всё остальное
+# Копируем оставшийся код проекта
 COPY . .
 
-# Запускаем бота
+# Создаём папку для временных файлов (если не существует)
+RUN mkdir -p temp
+
+# Указываем порт (Render сам выберет)
+EXPOSE 8000
+
+# Запуск FastAPI приложения с webhook
 CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

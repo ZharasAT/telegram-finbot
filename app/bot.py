@@ -1,13 +1,6 @@
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from aiogram.enums import ParseMode
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from dotenv import load_dotenv
-import os
-import logging
 import pdfplumber
-import tempfile
-from aiogram.client.default import DefaultBotProperties
 
 from app.parser import parse_transactions
 from app.ai_analysis import analyze_transactions_with_gpt
@@ -15,7 +8,17 @@ from app.utils.excel_exporter import save_transactions_to_excel
 
 load_dotenv()
 
+from aiogram import Bot, Dispatcher
+from aiogram.types import Message
+from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram import F
+import os
+import logging
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+from aiogram.client.default import DefaultBotProperties
 
 bot = Bot(
     token=TELEGRAM_TOKEN,
@@ -24,6 +27,10 @@ bot = Bot(
 dp = Dispatcher(storage=MemoryStorage())
 
 user_sessions = {}
+
+@dp.message(F.text == "/start")
+async def start_handler(message: Message):
+    await message.answer("Привет! Я бот для обработки PDF-выписок 😊")
 
 @dp.message(lambda message: message.document and message.document.mime_type == 'application/pdf')
 async def handle_pdf(message: Message):
@@ -71,23 +78,29 @@ async def handle_pdf(message: Message):
     )
     await message.answer("Если вы загрузили все выписки, нажмите кнопку ниже:", reply_markup=buttons)
 
+import os
+from datetime import datetime
+
 async def send_merged_excel(user_id: int, target):
     transactions = user_sessions.get(user_id)
     if not transactions:
-        await target.answer("Сессия пуста. Пожалуйста, отправьте хотя бы один файл PDF.")
+        await target.answer("❌ Нет транзакций для экспорта.")
         return
 
-    await target.answer(f"✅ Найдено {len(transactions)} транзакций")
+    await target.answer(f"✅ Найдено {len(transactions)} транзакций.")
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp_excel:
-        excel_path = tmp_excel.name
+    # Формируем путь
+    filename = f"merged_{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    excel_path = os.path.join("temp", filename)
 
+    # Сохраняем Excel-файл
     save_transactions_to_excel(transactions, output_path=excel_path)
 
+    # Отправляем
     excel_file = FSInputFile(excel_path)
-    await target.answer_document(excel_file, caption="Вот сводная выписка в формате Excel 🧾")
+    await target.answer_document(excel_file, caption="📊 Вот ваша объединённая выписка")
 
-    await target.answer("Хотите ли вы, чтобы я проанализировал эти транзакции с помощью GPT? Напишите `да` или `нет`. ✨")
+    await target.answer("Если нужно — повторите операцию 😊")
 
 @dp.callback_query(lambda c: c.data == "merge_done")
 async def handle_merge_callback(callback: CallbackQuery):
